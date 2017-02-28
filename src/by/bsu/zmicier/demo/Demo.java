@@ -16,10 +16,7 @@ import by.bsu.zmicier.game2048.learning.estimators.estimation.*;
 import by.bsu.zmicier.game2048.learning.estimators.position.factory.impl.PositionAnalyticsWrapperFactory;
 import by.bsu.zmicier.game2048.ui.Game2048PositionPainter;
 import by.bsu.zmicier.meta.game.gamemanager.GameManagerServer;
-import by.bsu.zmicier.meta.game.listeners.GameListenerChain;
 import by.bsu.zmicier.meta.game.player.Player;
-import by.bsu.zmicier.meta.game.player.enums.PlayerMarker;
-import by.bsu.zmicier.meta.game.player.impl.HumanPlayer;
 import by.bsu.zmicier.meta.game.player.impl.KNNPlayer;
 import by.bsu.zmicier.meta.game.player.impl.QuasiRandomPlayer;
 import by.bsu.zmicier.meta.game.player.impl.RandomPlayer;
@@ -28,7 +25,6 @@ import by.bsu.zmicier.meta.game.player.impl.estimators.MiniMaxPlayer;
 import by.bsu.zmicier.meta.learning.algorithm.GeneticSensei;
 import by.bsu.zmicier.meta.learning.algorithm.KNNSensei;
 import by.bsu.zmicier.meta.learning.algorithm.knn.DataConverter;
-import by.bsu.zmicier.meta.learning.algorithm.knn.Move;
 import by.bsu.zmicier.meta.learning.algorithm.knn.Role;
 import by.bsu.zmicier.meta.learning.arena.LearningArena;
 import by.bsu.zmicier.meta.learning.arena.impl.LearningArenaImpl;
@@ -49,7 +45,7 @@ public class Demo {
         GameManagerServer<FirstPlayerMove, SecondPlayerMove<Integer>, Position<Integer>, Game2048RulesMediator<Integer>> server =
                 new GameManagerServer<FirstPlayerMove, SecondPlayerMove<Integer>, Position<Integer>, Game2048RulesMediator<Integer>>();
 
-        server.setMediator((Game2048RulesMediator<Integer>)CoolGamesGenerator.generateCoolGame(CoolGames.ORIINAL));
+        server.setMediator((Game2048RulesMediator<Integer>)CoolGamesGenerator.generateCoolGame(CoolGames.HARD_DIVE));
 
         Player<FirstPlayerMove, Position<Integer>> first = new RandomPlayer<FirstPlayerMove, Position<Integer>>();
         Player<SecondPlayerMove<Integer>, Position<Integer>> second = new QuasiRandomPlayer<SecondPlayerMove<Integer>, Position<Integer>>();
@@ -110,22 +106,22 @@ public class Demo {
 
         Sensei<SecondPlayerMove<Integer>, Position<Integer>> secondSensei = new EmptySensei<SecondPlayerMove<Integer>, Position<Integer>>(new WeightedRandomPlayer<Integer>(new double[]{0.9, 0.1}));
 
-        arena.setFirstSensei(firstSensei2);
+        arena.setFirstSensei(firstSensei);
         arena.setSecondSensei(secondSensei);
 
-        arena.startLearning();
+        //arena.startLearning();
 
-        KNNPlayer<FirstPlayerMove, Position<Integer>, int[]> master = firstSensei2.getMaster();
-        master.setDistanceFunction(new BasicDistanceFunction());
-        server.setFirstPlayer(master);
-        server.setSecondPlayer(new WeightedRandomPlayer<Integer>(new double[]{0.9, 0.1}));
+        //KNNPlayer<FirstPlayerMove, Position<Integer>, int[]> master = firstSensei2.getMaster();
+        //master.setDistanceFunction(new BasicDistanceFunction());
+        server.setFirstPlayer(new UIHumanPlayer<Integer>(new Game2048PositionPainter<Integer>()));
+        server.setSecondPlayer(new RandomPlayer<SecondPlayerMove<Integer>, Position<Integer>>());
 
 
 
         System.out.println("!!! GAME !!!");
         server.getChain().addListener(new StatisticsGameListener<Position<Integer>>());
         server.getChain().addListener(new ConsoleGameListener<Position<Integer>>());
-        server.getChain().addListener(new UIGameListener<Position<Integer>>(new Game2048PositionPainter<Integer>()));
+        //server.getChain().addListener(new UIGameListener<Position<Integer>>(new Game2048PositionPainter<Integer>()));
         server.playGames(5);
     }
 }

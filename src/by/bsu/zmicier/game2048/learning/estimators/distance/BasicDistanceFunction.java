@@ -52,10 +52,9 @@ public class BasicDistanceFunction implements DistanceFunction<int[]> {
     }
 
     private float compareField2(int[] from, int[] to, int i, int j) {
-        int diff1 = i/4 - j/4;
-        int diff2 = i%4 - j%4;
+        int diff1 = Math.abs(i/4 - j/4);
+        int diff2 = Math.abs(i%4 - j%4);
 
-        return 4 - Math.abs(calculateDiff(from[i], to[j]) - calculateDiff(from[i], to[j]))
-                / (float)(diff1+diff2);
+        return 4 - Math.abs(calculateDiff(from[i], to[i])) - Math.abs(calculateDiff(from[j], to[j]))  / (float)(diff1+diff2);
     }
 }

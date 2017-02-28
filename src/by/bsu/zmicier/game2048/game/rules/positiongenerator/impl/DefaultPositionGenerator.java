@@ -22,7 +22,7 @@ public class DefaultPositionGenerator<T> extends Game2048PositionGenerator<T> {
 
     @Override
     public Position<T> generatePosition(int size) {
-        Position<T> pos = new by.bsu.zmicier.game2048.game.dto.position.Position<T>(size);
+        Position<T> pos = new Position<T>(size);
 
         Tile<T> t1 =  getRandom(getRulesMediator().getMoveMaker().getAvailableTiles(pos));
         Tile<T> t2 =  getRandom(getRulesMediator().getMoveMaker().getAvailableTiles(pos));

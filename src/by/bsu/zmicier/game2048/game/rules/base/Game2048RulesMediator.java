@@ -3,6 +3,7 @@ package by.bsu.zmicier.game2048.game.rules.base;
 import by.bsu.zmicier.game2048.game.dto.moves.FirstPlayerMove;
 import by.bsu.zmicier.game2048.game.dto.moves.SecondPlayerMove;
 import by.bsu.zmicier.game2048.game.dto.position.Position;
+import by.bsu.zmicier.game2048.game.rules.availabletilesmaster.Game2048AvailableTilesMaster;
 import by.bsu.zmicier.game2048.game.rules.finishchecker.Game2048FinishChecker;
 import by.bsu.zmicier.game2048.game.rules.movemaker.Game2048MoveMaker;
 import by.bsu.zmicier.game2048.game.rules.pointscounter.Game2048PointsCounter;
@@ -18,6 +19,7 @@ import by.bsu.zmicier.meta.game.rules.RulesMediator;
 public final class Game2048RulesMediator<T> extends RulesMediator<FirstPlayerMove, SecondPlayerMove<T>, Position<T>> {
     private static final String TILES_MERGER = "tilesMerger";
     private static final String POINTS_COUNTER = "pointsCounter";
+    private static final String AVAILABLE_TILES_MASTER = "availableTilesMaster";
 
     public Game2048MoveMaker<T> getMoveMaker() {
         return (Game2048MoveMaker<T>) moveMaker;
@@ -41,6 +43,15 @@ public final class Game2048RulesMediator<T> extends RulesMediator<FirstPlayerMov
 
     public void setPointsCounter(Game2048PointsCounter<T> pointsCounter) {
         additionalRules.put(POINTS_COUNTER, pointsCounter);
+    }
+
+    public Game2048AvailableTilesMaster<T> getAvailableTilesMaster() {
+        return (Game2048AvailableTilesMaster<T>) additionalRules.get(AVAILABLE_TILES_MASTER);
+    }
+
+
+    public void setAvailableTilesMaster(Game2048AvailableTilesMaster<T> availableTilesMaster) {
+        additionalRules.put(AVAILABLE_TILES_MASTER, availableTilesMaster);
     }
 
     public Game2048FinishChecker<T> getFinishChecker() {

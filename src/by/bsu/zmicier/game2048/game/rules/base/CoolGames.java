@@ -6,5 +6,5 @@ package by.bsu.zmicier.game2048.game.rules.base;
  * @author Źmicier Dzikański
  */
 public enum CoolGames {
-    ORIINAL, FIBONACCI;
+    ORIGINAL, FIBONACCI, EASY_DIVE, HARD_DIVE;
 }

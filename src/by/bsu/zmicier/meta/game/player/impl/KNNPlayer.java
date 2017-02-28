@@ -59,9 +59,11 @@ public class KNNPlayer<M, P extends MetaPosition<P>, S> extends AbstractPlayer<M
 
         S pos = converter.convertData(position);
 
+        System.out.println("Choose move");
         for(Move<M, S> move: moves) {
             if(client.makeMyMove(position, move.getMove()).isValid()) {
                 float currDiff = distanceFunction.getDistance(pos, move.getPosition());
+                System.out.println(move.getPosition() + " --> " + currDiff);
                 pairs.add(new Pair<M>(currDiff, move.getMove()));
             }
         }
