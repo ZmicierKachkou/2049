@@ -13,10 +13,24 @@ import java.util.List;
  */
 public class QuasiRandomPlayer<M, P extends MetaPosition<P>> extends AbstractPlayer<M, P> {
     private int move = 0;
+    private final int cycle;
+    private int gameNumber = -1;
+
+    public QuasiRandomPlayer() {
+        this(0);
+    }
+
+    public QuasiRandomPlayer(int cycle) {
+        this.cycle = cycle;
+    }
 
     @Override
     public void init() {
-        move = 0;
+        gameNumber++;
+        if(gameNumber >= cycle) {
+            move = 0;
+            gameNumber = 0;
+        }
     }
 
     @Override

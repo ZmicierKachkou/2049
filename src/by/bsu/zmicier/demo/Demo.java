@@ -3,6 +3,7 @@ package by.bsu.zmicier.demo;
 import by.bsu.zmicier.game2048.game.dto.moves.FirstPlayerMove;
 import by.bsu.zmicier.game2048.game.dto.moves.SecondPlayerMove;
 import by.bsu.zmicier.game2048.game.dto.position.Position;
+import by.bsu.zmicier.game2048.game.dto.tiles.Tile;
 import by.bsu.zmicier.game2048.game.listeners.ConsoleGameListener;
 import by.bsu.zmicier.game2048.game.listeners.StatisticsGameListener;
 import by.bsu.zmicier.game2048.game.players.firstplayer.CornerPlayer;
@@ -11,6 +12,8 @@ import by.bsu.zmicier.game2048.game.players.secondplayer.WeightedRandomPlayer;
 import by.bsu.zmicier.game2048.game.rules.base.CoolGames;
 import by.bsu.zmicier.game2048.game.rules.base.CoolGamesGenerator;
 import by.bsu.zmicier.game2048.game.rules.base.Game2048RulesMediator;
+import by.bsu.zmicier.game2048.game.rules.positiongenerator.Game2048PositionGenerator;
+import by.bsu.zmicier.game2048.game.rules.positiongenerator.impl.DefaultPositionGenerator;
 import by.bsu.zmicier.game2048.learning.estimators.distance.BasicDistanceFunction;
 import by.bsu.zmicier.game2048.learning.estimators.estimation.*;
 import by.bsu.zmicier.game2048.learning.estimators.position.factory.impl.PositionAnalyticsWrapperFactory;
@@ -20,8 +23,10 @@ import by.bsu.zmicier.meta.game.player.Player;
 import by.bsu.zmicier.meta.game.player.impl.KNNPlayer;
 import by.bsu.zmicier.meta.game.player.impl.QuasiRandomPlayer;
 import by.bsu.zmicier.meta.game.player.impl.RandomPlayer;
+import by.bsu.zmicier.meta.game.player.impl.estimators.AbstractEstimatorPlayer;
 import by.bsu.zmicier.meta.game.player.impl.estimators.BasicEstimatorPlayer;
 import by.bsu.zmicier.meta.game.player.impl.estimators.MiniMaxPlayer;
+import by.bsu.zmicier.meta.game.rules.RulesMediator;
 import by.bsu.zmicier.meta.learning.algorithm.GeneticSensei;
 import by.bsu.zmicier.meta.learning.algorithm.KNNSensei;
 import by.bsu.zmicier.meta.learning.algorithm.knn.DataConverter;
@@ -45,19 +50,31 @@ public class Demo {
         GameManagerServer<FirstPlayerMove, SecondPlayerMove<Integer>, Position<Integer>, Game2048RulesMediator<Integer>> server =
                 new GameManagerServer<FirstPlayerMove, SecondPlayerMove<Integer>, Position<Integer>, Game2048RulesMediator<Integer>>();
 
-        server.setMediator((Game2048RulesMediator<Integer>)CoolGamesGenerator.generateCoolGame(CoolGames.HARD_DIVE));
+        Game2048RulesMediator<Integer> mediator = (Game2048RulesMediator<Integer>)CoolGamesGenerator.generateCoolGame(CoolGames.ORIGINAL);
+        mediator.setPositionGenerator(new Game2048PositionGenerator<Integer>(mediator) {
+            @Override
+            public Position<Integer> generatePosition(int size) {
+                return null;
+            }
 
-        Player<FirstPlayerMove, Position<Integer>> first = new RandomPlayer<FirstPlayerMove, Position<Integer>>();
-        Player<SecondPlayerMove<Integer>, Position<Integer>> second = new QuasiRandomPlayer<SecondPlayerMove<Integer>, Position<Integer>>();
+            @Override
+            public Position<Integer> generatePosition() {
+                Position<Integer> p = new Position<Integer>();
+                p.setTile(1,2, new Tile<Integer>(2));
+                p.setTile(3,3, new Tile<Integer>(4));
+                return p;
+            }
+        });
+        server.setMediator(mediator);
 
         LearningArena<FirstPlayerMove, SecondPlayerMove<Integer>, Position<Integer>> arena =
                 new LearningArenaImpl<FirstPlayerMove, SecondPlayerMove<Integer>, Position<Integer>>();
         arena.setServer(server);
-        arena.setGames(100);
+        arena.setGames(2);
 
         Sensei<FirstPlayerMove, Position<Integer>> firstSensei = new GeneticSensei<FirstPlayerMove, Position<Integer>>(
                 new BasicEstimatorPlayer<FirstPlayerMove, Position<Integer>>(),
-                new MiniMaxPlayer<FirstPlayerMove, Position<Integer>>(4),
+                new MiniMaxPlayer<FirstPlayerMove, Position<Integer>>(5),
                 new LinkedList<EstimationFunction<Position<Integer>>>() {{
                     PositionAnalyticsWrapperFactory factory = new PositionAnalyticsWrapperFactory();
                     add(new BothDirectionPairsEstimationFunction(factory));
@@ -85,7 +102,8 @@ public class Demo {
         );
 
 
-        KNNSensei<FirstPlayerMove, Position<Integer>, int[]> firstSensei2 = new KNNSensei<FirstPlayerMove, Position<Integer>, int[]>(new CornerPlayer<Integer>(), Role.PLAYER);
+        KNNSensei<FirstPlayerMove, Position<Integer>, int[]> firstSensei2 = new KNNSensei<FirstPlayerMove, Position<Integer>, int[]>(new
+                UIHumanPlayer<Integer>(new Game2048PositionPainter<Integer>()), Role.PLAYER);
         firstSensei2.setDataConverter(new DataConverter<int[], Position<Integer>>() {
             @Override
             public int[] convertData(Position<Integer> data) {
@@ -104,24 +122,25 @@ public class Demo {
             }
         });
 
-        Sensei<SecondPlayerMove<Integer>, Position<Integer>> secondSensei = new EmptySensei<SecondPlayerMove<Integer>, Position<Integer>>(new WeightedRandomPlayer<Integer>(new double[]{0.9, 0.1}));
+        Sensei<SecondPlayerMove<Integer>, Position<Integer>> secondSensei = new EmptySensei<SecondPlayerMove<Integer>, Position<Integer>>(new
+                QuasiRandomPlayer<SecondPlayerMove<Integer>, Position<Integer>>(GeneticSensei.GAMES_FOR_FITNESS_COUNTING));
 
-        arena.setFirstSensei(firstSensei);
+        arena.setFirstSensei(firstSensei2);
         arena.setSecondSensei(secondSensei);
 
-        //arena.startLearning();
+        arena.startLearning();
 
         //KNNPlayer<FirstPlayerMove, Position<Integer>, int[]> master = firstSensei2.getMaster();
         //master.setDistanceFunction(new BasicDistanceFunction());
-        server.setFirstPlayer(new UIHumanPlayer<Integer>(new Game2048PositionPainter<Integer>()));
+        mediator.setPositionGenerator(new DefaultPositionGenerator<Integer>(mediator));
+        server.setFirstPlayer(new BasicEstimatorPlayer<FirstPlayerMove, Position<Integer>>(((AbstractEstimatorPlayer<FirstPlayerMove, Position<Integer>>)
+                firstSensei.getMaster()).getEstimationFunction()));
         server.setSecondPlayer(new RandomPlayer<SecondPlayerMove<Integer>, Position<Integer>>());
-
-
 
         System.out.println("!!! GAME !!!");
         server.getChain().addListener(new StatisticsGameListener<Position<Integer>>());
         server.getChain().addListener(new ConsoleGameListener<Position<Integer>>());
-        //server.getChain().addListener(new UIGameListener<Position<Integer>>(new Game2048PositionPainter<Integer>()));
-        server.playGames(5);
+        server.getChain().addListener(new UIGameListener<Position<Integer>>(new Game2048PositionPainter<Integer>()));
+        server.playGames(10);
     }
 }

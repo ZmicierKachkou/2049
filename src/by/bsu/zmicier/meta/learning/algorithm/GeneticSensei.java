@@ -17,8 +17,8 @@ import java.util.*;
  * @author Źmicier Dzikański
  */
 public class GeneticSensei<M, P extends MetaPosition<P>> extends AbstractSensei<M, P> {
-    public static final int POPULATION_SIZE = 80;
-    public static final int GAMES_FOR_FITNESS_COUNTING = 1;
+    public static final int POPULATION_SIZE = 200;
+    public static final int GAMES_FOR_FITNESS_COUNTING = 10;
 
     public static final double ELITE_RATE = 0.05;
     public static final double SURVIVE_RATE = 0.1;
