@@ -20,25 +20,33 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class UIHumanPlayer<T> extends AbstractPlayer<FirstPlayerMove, Position<T>> {
     private UITable<Position<T>> uiTable;
+    private PositionPainter<Position<T>> painter;
     private ConcurrentLinkedQueue<FirstPlayerMove> pressedButtons = new ConcurrentLinkedQueue<FirstPlayerMove>();
 
     public UIHumanPlayer(PositionPainter<Position<T>> painter) {
-        uiTable = new UITable<Position<T>>(painter);
-        uiTable.setTitle("Good luck, have fun!");
-        uiTable.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    pressedButtons.add(FirstPlayerMove.LEFT);
-                } else if(e.getKeyCode() == KeyEvent.VK_UP) {
-                    pressedButtons.add(FirstPlayerMove.UP);
-                } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    pressedButtons.add(FirstPlayerMove.RIGHT);
-                } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    pressedButtons.add(FirstPlayerMove.DOWN);
+        this.painter = painter;
+    }
+
+    @Override
+    public void init() {
+        if(uiTable == null) {
+            uiTable = new UITable<Position<T>>(painter);
+            uiTable.setTitle("Good luck, have fun!");
+            uiTable.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+                        pressedButtons.add(FirstPlayerMove.LEFT);
+                    } else if(e.getKeyCode() == KeyEvent.VK_UP) {
+                        pressedButtons.add(FirstPlayerMove.UP);
+                    } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                        pressedButtons.add(FirstPlayerMove.RIGHT);
+                    } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+                        pressedButtons.add(FirstPlayerMove.DOWN);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override

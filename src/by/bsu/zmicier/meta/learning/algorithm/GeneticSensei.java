@@ -5,6 +5,7 @@ import by.bsu.zmicier.meta.game.dto.MetaPosition;
 import by.bsu.zmicier.meta.game.player.impl.estimators.AbstractEstimatorPlayer;
 import by.bsu.zmicier.meta.learning.algorithm.genetic.model.Genome;
 import by.bsu.zmicier.meta.learning.arena.events.impl.EndGameArenaEvent;
+import by.bsu.zmicier.meta.learning.arena.events.impl.LearningStateArenaEvent;
 import by.bsu.zmicier.meta.learning.arena.events.impl.NewGameArenaEvent;
 import by.bsu.zmicier.meta.learning.estimation.EstimationFunction;
 import by.bsu.zmicier.meta.learning.sensei.AbstractSensei;
@@ -17,8 +18,8 @@ import java.util.*;
  * @author Źmicier Dzikański
  */
 public class GeneticSensei<M, P extends MetaPosition<P>> extends AbstractSensei<M, P> {
-    public static final int POPULATION_SIZE = 200;
-    public static final int GAMES_FOR_FITNESS_COUNTING = 10;
+    public static final int POPULATION_SIZE = 50;
+    public static final int GAMES_FOR_FITNESS_COUNTING = 1;
 
     public static final double ELITE_RATE = 0.05;
     public static final double SURVIVE_RATE = 0.1;
@@ -28,8 +29,8 @@ public class GeneticSensei<M, P extends MetaPosition<P>> extends AbstractSensei<
 
     private float[] fitness = new float[POPULATION_SIZE];
     private List<Genome> currentGeneration;
-    private int gameNumber = -1;
-    private int step = 0;
+    private int gameNumber;
+    private int step;
     private List<EstimationFunction<P>> functions;
 
     private AbstractEstimatorPlayer<M, P> student;
@@ -41,12 +42,7 @@ public class GeneticSensei<M, P extends MetaPosition<P>> extends AbstractSensei<
         this.student = student;
         this.master = master;
         this.functions = functions;
-        this.size = functions.size();
-        for(int i=0; i < fitness.length; i++) {
-            fitness[i] = 0;
-        }
-
-        currentGeneration = initializePopulation();
+        initState();
     }
 
     @Override
@@ -66,6 +62,11 @@ public class GeneticSensei<M, P extends MetaPosition<P>> extends AbstractSensei<
 
     public void setMaster(AbstractEstimatorPlayer<M, P> master) {
         this.master = master;
+    }
+
+    @Override
+    public void processStartLearningEvent(LearningStateArenaEvent event) {
+        initState();
     }
 
     @Override
@@ -101,7 +102,18 @@ public class GeneticSensei<M, P extends MetaPosition<P>> extends AbstractSensei<
         }
     }
 
-    public List<Genome> initializePopulation() {
+    private void initState() {
+        gameNumber = -1;
+        step = 0;
+        this.size = functions.size();
+        for(int i=0; i < fitness.length; i++) {
+            fitness[i] = 0;
+        }
+
+        currentGeneration = initializePopulation();
+    }
+
+    private List<Genome> initializePopulation() {
         List<Genome> list = new ArrayList<Genome>(POPULATION_SIZE);
         for(int i=0; i < POPULATION_SIZE; i++) {
             Genome genome = new Genome(size);

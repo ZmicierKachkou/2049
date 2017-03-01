@@ -1,6 +1,7 @@
 package by.bsu.zmicier.meta.learning.arena.impl;
 
 import by.bsu.zmicier.meta.game.dto.MetaPosition;
+import by.bsu.zmicier.meta.game.listeners.GameAction;
 import by.bsu.zmicier.meta.game.player.enums.PlayerMarker;
 import by.bsu.zmicier.meta.learning.arena.LearningArena;
 import by.bsu.zmicier.meta.learning.arena.listeners.ArenaListener;
@@ -45,6 +46,7 @@ public class LearningArenaImpl<F, S, P extends MetaPosition<P>> implements Learn
         listener.addSecondSensei(secondSensei);
         server.getChain().addListener(listener);
 
+        server.getChain().processAction(null, GameAction.START_BLOCK);
         for(int i = 0; i < games; i++) {
 
             server.setFirstPlayer(firstSensei.getStudent());
@@ -52,6 +54,7 @@ public class LearningArenaImpl<F, S, P extends MetaPosition<P>> implements Learn
 
             server.playGame();
         }
+        server.getChain().processAction(null, GameAction.END_BLOCK);
 
         server.getChain().removeListener(listener);
     }

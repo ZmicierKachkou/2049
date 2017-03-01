@@ -31,6 +31,8 @@ public abstract class AbstractSensei<M, P extends MetaPosition<P>> implements Se
             processMoveEvent((MoveArenaEvent<?, P>)event);
         } else if(event instanceof EndGameArenaEvent) {
             processEndGameEvent((EndGameArenaEvent<P>)event);
+        } else if(event instanceof LearningStateArenaEvent) {
+            proccessLearningStateEvent((LearningStateArenaEvent)event);
         }
     }
 
@@ -59,5 +61,17 @@ public abstract class AbstractSensei<M, P extends MetaPosition<P>> implements Se
     public void processMyMoveEvent(LightMoveArenaEvent<M, P> event) {  }
 
     public void processEndGameEvent(EndGameArenaEvent<P> event) {  }
+
+    public void proccessLearningStateEvent(LearningStateArenaEvent event) {
+        if(event.getState() == LearningStateArenaEvent.State.START) {
+            processStartLearningEvent(event);
+        } else if(event.getState() == LearningStateArenaEvent.State.FINISH) {
+            processFinishLearningEvent(event);
+        }
+    }
+
+    public void processStartLearningEvent(LearningStateArenaEvent event) {  }
+
+    public void processFinishLearningEvent(LearningStateArenaEvent event) {  }
 
 }

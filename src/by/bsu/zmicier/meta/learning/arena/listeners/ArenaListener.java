@@ -61,6 +61,12 @@ public class ArenaListener<F, S, P extends MetaPosition<P>> implements GameListe
             case END_GAME:
                 notifySenseis(new EndGameArenaEvent<P>(firstSenseiId, secondSenseiId, result));
                 break;
+            case START_BLOCK:
+                notifySenseis(new LearningStateArenaEvent(firstSenseiId, secondSenseiId, LearningStateArenaEvent.State.START));
+                break;
+            case END_BLOCK:
+                notifySenseis(new LearningStateArenaEvent(firstSenseiId, secondSenseiId, LearningStateArenaEvent.State.FINISH));
+                break;
         }
     }
 
